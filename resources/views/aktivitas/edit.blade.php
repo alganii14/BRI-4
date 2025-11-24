@@ -296,7 +296,7 @@
             'PENURUNAN CASA MERCHANT (QRIS & EDC)',
             'PENURUNAN CASA BRILINK',
             'Qlola Non Debitur',
-            'Non Dbitur Vol Besar CASA Kecil'
+            'Non Debitur Vol Besar CASA Kecil'
         ],
         'Strategi 2': [
             'Qlola (Belum ada Qlola / ada namun nonaktif)',
@@ -306,9 +306,8 @@
         'Strategi 4': ['Existing Payroll', 'Potensi Payroll'],
         'Strategi 6': ['List Perusahaan Anak'],
         'Strategi 7': [
-            'PENURUNAN CASA BRILINK',
-            'PENURUNAN CASA MERCHANT (QRIS & EDC)',
-            'PENURUNAN PRIORITAS RITEL MIKRO'
+            'Penurunan Prioritas Ritel & Mikro',
+            'AUM>2M DPK<50 juta'
         ],
         'Strategi 8': ['Wingback'],
         'Layering': ['Layering']
@@ -410,8 +409,15 @@
     function loadNasabahData() {
         const strategy = document.getElementById('strategy_pipeline').value;
         const kategoriSelect = document.getElementById('kategori_strategi');
-        const kategori = kategoriSelect ? kategoriSelect.value : '';
+        let kategori = kategoriSelect ? kategoriSelect.value : '';
         const kodeKC = '{{ $aktivitas->kode_kc }}';
+        
+        // Untuk strategi yang tidak punya kategori dropdown, gunakan default kategori
+        if (strategy === 'Strategi 8' && !kategori) {
+            kategori = 'Wingback';
+        } else if (strategy === 'Layering' && !kategori) {
+            kategori = 'Layering';
+        }
         
         const nasabahList = document.getElementById('nasabahList');
         nasabahList.innerHTML = '<div style="text-align: center; padding: 40px; color: #0066CC;"><div style="display: inline-block; width: 40px; height: 40px; border: 4px solid #f3f3f3; border-top: 4px solid #0066CC; border-radius: 50%; animation: spin 1s linear infinite;"></div><p style="margin-top: 16px;">Memuat data...</p></div>';
@@ -464,7 +470,7 @@
         const isPenurunanMerchant = kategori === 'PENURUNAN CASA MERCHANT (QRIS & EDC)';
         const isNonDebiturVolBesar = kategori === 'Non Debitur Vol Besar CASA Kecil';
         const isUserAktifCasaKecil = kategori === 'User Aktif Casa Kecil';
-        const isPenurunanPrioritasRitelMikro = kategori === 'PENURUNAN PRIORITAS RITEL MIKRO';
+        const isPenurunanPrioritasRitelMikro = kategori === 'PENURUNAN PRIORITAS RITEL MIKRO' || kategori === 'Penurunan Prioritas Ritel & Mikro';
         const isAumDpk = kategori === 'AUM>2M DPK<50 juta';
         const isStrategi8 = kategori === 'Wingback' || strategy === 'Strategi 8';
         const isLayering = kategori === 'Wingback' || strategy === 'Layering';
@@ -512,24 +518,45 @@
             html += '<th style="padding: 10px; text-align: left; font-size: 13px; min-width: 120px; border-bottom: 2px solid #dee2e6;">CIFNO</th>';
             html += '<th style="padding: 10px; text-align: right; font-size: 13px; min-width: 150px; border-bottom: 2px solid #dee2e6;">Saldo Bulan Berjalan</th>';
         } else if (isPenurunanPrioritasRitelMikro) {
+            html += '<th style="padding: 10px; text-align: left; font-size: 13px; min-width: 120px; border-bottom: 2px solid #dee2e6;">Kode Cabang Induk</th>';
             html += '<th style="padding: 10px; text-align: left; font-size: 13px; min-width: 150px; border-bottom: 2px solid #dee2e6;">Cabang Induk</th>';
+            html += '<th style="padding: 10px; text-align: left; font-size: 13px; min-width: 100px; border-bottom: 2px solid #dee2e6;">Kode Uker</th>';
+            html += '<th style="padding: 10px; text-align: left; font-size: 13px; min-width: 120px; border-bottom: 2px solid #dee2e6;">Unit Kerja</th>';
             html += '<th style="padding: 10px; text-align: left; font-size: 13px; min-width: 120px; border-bottom: 2px solid #dee2e6;">CIFNO</th>';
+            html += '<th style="padding: 10px; text-align: left; font-size: 13px; min-width: 150px; border-bottom: 2px solid #dee2e6;">No. Rekening</th>';
             html += '<th style="padding: 10px; text-align: left; font-size: 13px; min-width: 200px; border-bottom: 2px solid #dee2e6;">Nama Nasabah</th>';
+            html += '<th style="padding: 10px; text-align: left; font-size: 13px; min-width: 120px; border-bottom: 2px solid #dee2e6;">Segmentasi BPR</th>';
+            html += '<th style="padding: 10px; text-align: left; font-size: 13px; min-width: 120px; border-bottom: 2px solid #dee2e6;">Jenis Simpanan</th>';
+            html += '<th style="padding: 10px; text-align: right; font-size: 13px; min-width: 150px; border-bottom: 2px solid #dee2e6;">Saldo Last EOM</th>';
             html += '<th style="padding: 10px; text-align: right; font-size: 13px; min-width: 150px; border-bottom: 2px solid #dee2e6;">Saldo Terupdate</th>';
+            html += '<th style="padding: 10px; text-align: right; font-size: 13px; min-width: 120px; border-bottom: 2px solid #dee2e6;">Delta</th>';
         } else if (isAumDpk) {
             html += '<th style="padding: 10px; text-align: left; font-size: 13px; min-width: 150px; border-bottom: 2px solid #dee2e6;">Cabang Induk</th>';
             html += '<th style="padding: 10px; text-align: left; font-size: 13px; min-width: 120px; border-bottom: 2px solid #dee2e6;">CIF</th>';
             html += '<th style="padding: 10px; text-align: left; font-size: 13px; min-width: 200px; border-bottom: 2px solid #dee2e6;">Nama Nasabah</th>';
             html += '<th style="padding: 10px; text-align: right; font-size: 13px; min-width: 150px; border-bottom: 2px solid #dee2e6;">AUM</th>';
         } else if (isStrategi8 || isLayering) {
+            html += '<th style="padding: 10px; text-align: left; font-size: 13px; min-width: 120px; border-bottom: 2px solid #dee2e6;">Kode Cabang Induk</th>';
             html += '<th style="padding: 10px; text-align: left; font-size: 13px; min-width: 150px; border-bottom: 2px solid #dee2e6;">Cabang Induk</th>';
+            html += '<th style="padding: 10px; text-align: left; font-size: 13px; min-width: 100px; border-bottom: 2px solid #dee2e6;">Kode Uker</th>';
+            html += '<th style="padding: 10px; text-align: left; font-size: 13px; min-width: 120px; border-bottom: 2px solid #dee2e6;">Unit Kerja</th>';
             html += '<th style="padding: 10px; text-align: left; font-size: 13px; min-width: 120px; border-bottom: 2px solid #dee2e6;">CIFNO</th>';
+            html += '<th style="padding: 10px; text-align: left; font-size: 13px; min-width: 150px; border-bottom: 2px solid #dee2e6;">No. Rekening</th>';
             html += '<th style="padding: 10px; text-align: left; font-size: 13px; min-width: 200px; border-bottom: 2px solid #dee2e6;">Nama Nasabah</th>';
+            html += '<th style="padding: 10px; text-align: left; font-size: 13px; min-width: 120px; border-bottom: 2px solid #dee2e6;">Segmentasi</th>';
+            html += '<th style="padding: 10px; text-align: left; font-size: 13px; min-width: 120px; border-bottom: 2px solid #dee2e6;">Jenis Simpanan</th>';
+            html += '<th style="padding: 10px; text-align: right; font-size: 13px; min-width: 150px; border-bottom: 2px solid #dee2e6;">Saldo Last EOM</th>';
             html += '<th style="padding: 10px; text-align: right; font-size: 13px; min-width: 150px; border-bottom: 2px solid #dee2e6;">Saldo Terupdate</th>';
+            html += '<th style="padding: 10px; text-align: right; font-size: 13px; min-width: 120px; border-bottom: 2px solid #dee2e6;">Delta</th>';
         } else if (isOptimalisasiBusinessCluster) {
+            html += '<th style="padding: 10px; text-align: left; font-size: 13px; min-width: 120px; border-bottom: 2px solid #dee2e6;">Kode Cabang Induk</th>';
             html += '<th style="padding: 10px; text-align: left; font-size: 13px; min-width: 150px; border-bottom: 2px solid #dee2e6;">Cabang Induk</th>';
-            html += '<th style="padding: 10px; text-align: left; font-size: 13px; min-width: 200px; border-bottom: 2px solid #dee2e6;">Nama Usaha Pusat Bisnis</th>';
+            html += '<th style="padding: 10px; text-align: left; font-size: 13px; min-width: 100px; border-bottom: 2px solid #dee2e6;">Kode Uker</th>';
+            html += '<th style="padding: 10px; text-align: left; font-size: 13px; min-width: 120px; border-bottom: 2px solid #dee2e6;">Unit Kerja</th>';
+            html += '<th style="padding: 10px; text-align: left; font-size: 13px; min-width: 150px; border-bottom: 2px solid #dee2e6;">Tag Zona Unggulan</th>';
             html += '<th style="padding: 10px; text-align: left; font-size: 13px; min-width: 150px; border-bottom: 2px solid #dee2e6;">Nomor Rekening</th>';
+            html += '<th style="padding: 10px; text-align: left; font-size: 13px; min-width: 200px; border-bottom: 2px solid #dee2e6;">Nama Usaha Pusat Bisnis</th>';
+            html += '<th style="padding: 10px; text-align: left; font-size: 13px; min-width: 150px; border-bottom: 2px solid #dee2e6;">Nama Tenaga Pemasar</th>';
         } else if (isPotensiPayroll) {
             html += '<th style="padding: 10px; text-align: left; font-size: 13px; min-width: 150px; border-bottom: 2px solid #dee2e6;">Cabang Induk</th>';
             html += '<th style="padding: 10px; text-align: left; font-size: 13px; min-width: 200px; border-bottom: 2px solid #dee2e6;">Perusahaan</th>';
@@ -597,24 +624,45 @@
                 html += `<td style="padding: 10px; font-family: monospace;">${nasabah.cifno || '-'}</td>`;
                 html += `<td style="padding: 10px; text-align: right;">Rp ${nasabah.saldo_bulan_berjalan ? parseFloat(nasabah.saldo_bulan_berjalan).toLocaleString('id-ID') : '0'}</td>`;
             } else if (isPenurunanPrioritasRitelMikro) {
+                html += `<td style="padding: 10px; font-family: monospace;">${nasabah.kode_cabang_induk || '-'}</td>`;
                 html += `<td style="padding: 10px;">${nasabah.cabang_induk || '-'}</td>`;
+                html += `<td style="padding: 10px; font-family: monospace;">${nasabah.kode_uker || '-'}</td>`;
+                html += `<td style="padding: 10px;">${nasabah.unit_kerja || '-'}</td>`;
                 html += `<td style="padding: 10px; font-family: monospace;">${nasabah.cifno || '-'}</td>`;
+                html += `<td style="padding: 10px; font-family: monospace;">${nasabah.no_rekening || '-'}</td>`;
                 html += `<td style="padding: 10px; font-weight: 500;">${nasabah.nama_nasabah || '-'}</td>`;
+                html += `<td style="padding: 10px;">${nasabah.segmentasi_bpr || '-'}</td>`;
+                html += `<td style="padding: 10px;">${nasabah.jenis_simpanan || '-'}</td>`;
+                html += `<td style="padding: 10px; text-align: right;">Rp ${nasabah.saldo_last_eom ? parseFloat(nasabah.saldo_last_eom).toLocaleString('id-ID') : '0'}</td>`;
                 html += `<td style="padding: 10px; text-align: right;">Rp ${nasabah.saldo_terupdate ? parseFloat(nasabah.saldo_terupdate).toLocaleString('id-ID') : '0'}</td>`;
+                html += `<td style="padding: 10px; text-align: right;">Rp ${nasabah.delta ? parseFloat(nasabah.delta).toLocaleString('id-ID') : '0'}</td>`;
             } else if (isAumDpk) {
                 html += `<td style="padding: 10px;">${nasabah.cabang_induk || '-'}</td>`;
                 html += `<td style="padding: 10px; font-family: monospace;">${nasabah.cif || '-'}</td>`;
                 html += `<td style="padding: 10px; font-weight: 500;">${nasabah.nama_nasabah || '-'}</td>`;
                 html += `<td style="padding: 10px; text-align: right;">Rp ${nasabah.aum ? parseFloat(nasabah.aum).toLocaleString('id-ID') : '0'}</td>`;
             } else if (isStrategi8 || isLayering) {
+                html += `<td style="padding: 10px; font-family: monospace;">${nasabah.kode_cabang_induk || '-'}</td>`;
                 html += `<td style="padding: 10px;">${nasabah.cabang_induk || '-'}</td>`;
+                html += `<td style="padding: 10px; font-family: monospace;">${nasabah.kode_uker || '-'}</td>`;
+                html += `<td style="padding: 10px;">${nasabah.unit_kerja || '-'}</td>`;
                 html += `<td style="padding: 10px; font-family: monospace;">${nasabah.cifno || '-'}</td>`;
+                html += `<td style="padding: 10px; font-family: monospace;">${nasabah.no_rekening || '-'}</td>`;
                 html += `<td style="padding: 10px; font-weight: 500;">${nasabah.nama_nasabah || '-'}</td>`;
+                html += `<td style="padding: 10px;">${nasabah.segmentasi || '-'}</td>`;
+                html += `<td style="padding: 10px;">${nasabah.jenis_simpanan || '-'}</td>`;
+                html += `<td style="padding: 10px; text-align: right;">Rp ${nasabah.saldo_last_eom ? parseFloat(nasabah.saldo_last_eom).toLocaleString('id-ID') : '0'}</td>`;
                 html += `<td style="padding: 10px; text-align: right;">Rp ${nasabah.saldo_terupdate ? parseFloat(nasabah.saldo_terupdate).toLocaleString('id-ID') : '0'}</td>`;
+                html += `<td style="padding: 10px; text-align: right;">Rp ${nasabah.delta ? parseFloat(nasabah.delta).toLocaleString('id-ID') : '0'}</td>`;
             } else if (isOptimalisasiBusinessCluster) {
+                html += `<td style="padding: 10px; font-family: monospace;">${nasabah.kode_cabang_induk || '-'}</td>`;
                 html += `<td style="padding: 10px;">${nasabah.cabang_induk || '-'}</td>`;
-                html += `<td style="padding: 10px; font-weight: 500;">${nasabah.nama_usaha_pusat_bisnis || '-'}</td>`;
+                html += `<td style="padding: 10px; font-family: monospace;">${nasabah.kode_uker || '-'}</td>`;
+                html += `<td style="padding: 10px;">${nasabah.unit_kerja || '-'}</td>`;
+                html += `<td style="padding: 10px;">${nasabah.tag_zona_unggulan || '-'}</td>`;
                 html += `<td style="padding: 10px; font-family: monospace;">${nasabah.nomor_rekening || '-'}</td>`;
+                html += `<td style="padding: 10px; font-weight: 500;">${nasabah.nama_usaha_pusat_bisnis || '-'}</td>`;
+                html += `<td style="padding: 10px;">${nasabah.nama_tenaga_pemasar || '-'}</td>`;
             } else if (isPotensiPayroll) {
                 html += `<td style="padding: 10px;">${nasabah.cabang_induk || '-'}</td>`;
                 html += `<td style="padding: 10px; font-weight: 500;">${nasabah.perusahaan || '-'}</td>`;
