@@ -1,0 +1,11 @@
+@extends('layouts.app')
+
+@section('title', 'Pull of Pipeline - Optimalisasi Business Cluster')
+@section('page-title', 'Pull of Pipeline - Optimalisasi Business Cluster')
+
+@section('content')
+@include('manager-pull-pipeline.partials.read-only-table', [
+    'data' => $data,
+    'route' => route('manager-pull-pipeline.optimalisasi-business-cluster')
+])
+@endsection

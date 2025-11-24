@@ -1,0 +1,427 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use App\Models\MerchantSavol;
+use App\Models\PenurunanMerchant;
+use App\Models\PenurunanCasaBrilink;
+use App\Models\QlolaNonDebitur;
+use App\Models\NonDebiturVolBesar;
+use App\Models\QlolaNonaktif;
+use App\Models\UserAktifCasaKecil;
+use App\Models\OptimalisasiBusinessCluster;
+use App\Models\ExistingPayroll;
+use App\Models\PotensiPayroll;
+use App\Models\PerusahaanAnak;
+use App\Models\PenurunanPrioritasRitelMikro;
+use App\Models\AumDpk;
+use App\Models\Strategi8;
+use App\Models\Layering;
+
+class ManagerPullPipelineController extends Controller
+{
+    /**
+     * Merchant Savol - Strategi 1
+     */
+    public function merchantSavol(Request $request)
+    {
+        $user = Auth::user();
+        
+        if (!$user->isManager()) {
+            abort(403, 'Unauthorized action.');
+        }
+        
+        $query = MerchantSavol::where('kode_kanca', $user->kode_kanca);
+        
+        // Filter by search
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('norekening', 'like', "%{$search}%")
+                  ->orWhere('nama_merchant', 'like', "%{$search}%")
+                  ->orWhere('tid_store_id', 'like', "%{$search}%");
+            });
+        }
+        
+        $data = $query->orderBy('nama_merchant')->paginate(20);
+        
+        return view('manager-pull-pipeline.merchant-savol', compact('data'));
+    }
+
+    /**
+     * Penurunan Merchant - Strategi 1
+     */
+    public function penurunanMerchant(Request $request)
+    {
+        $user = Auth::user();
+        
+        if (!$user->isManager()) {
+            abort(403, 'Unauthorized action.');
+        }
+        
+        $query = PenurunanMerchant::where('kode_cabang_induk', $user->kode_kanca);
+        
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('no_rekening', 'like', "%{$search}%")
+                  ->orWhere('nama_nasabah', 'like', "%{$search}%")
+                  ->orWhere('cifno', 'like', "%{$search}%");
+            });
+        }
+        
+        $data = $query->orderBy('nama_nasabah')->paginate(20);
+        
+        return view('manager-pull-pipeline.penurunan-merchant', compact('data'));
+    }
+
+    /**
+     * Penurunan Casa Brilink - Strategi 1
+     */
+    public function penurunanCasaBrilink(Request $request)
+    {
+        $user = Auth::user();
+        
+        if (!$user->isManager()) {
+            abort(403, 'Unauthorized action.');
+        }
+        
+        $query = PenurunanCasaBrilink::where('kode_cabang_induk', $user->kode_kanca);
+        
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('no_rekening', 'like', "%{$search}%")
+                  ->orWhere('nama_nasabah', 'like', "%{$search}%")
+                  ->orWhere('cifno', 'like', "%{$search}%");
+            });
+        }
+        
+        $data = $query->orderBy('nama_nasabah')->paginate(20);
+        
+        return view('manager-pull-pipeline.penurunan-casa-brilink', compact('data'));
+    }
+
+    /**
+     * Qlola Non Debitur - Strategi 1
+     */
+    public function qlolaNonDebitur(Request $request)
+    {
+        $user = Auth::user();
+        
+        if (!$user->isManager()) {
+            abort(403, 'Unauthorized action.');
+        }
+        
+        $query = QlolaNonDebitur::where('kode_kanca', $user->kode_kanca);
+        
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('norek', 'like', "%{$search}%")
+                  ->orWhere('nama_nasabah', 'like', "%{$search}%")
+                  ->orWhere('cif', 'like', "%{$search}%");
+            });
+        }
+        
+        $data = $query->orderBy('id')->paginate(20);
+        
+        return view('manager-pull-pipeline.qlola-non-debitur', compact('data'));
+    }
+
+    /**
+     * Non Debitur Vol Besar - Strategi 1
+     */
+    public function nonDebiturVolBesar(Request $request)
+    {
+        $user = Auth::user();
+        
+        if (!$user->isManager()) {
+            abort(403, 'Unauthorized action.');
+        }
+        
+        $query = NonDebiturVolBesar::where('kode_kanca', $user->kode_kanca);
+        
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('norek', 'like', "%{$search}%")
+                  ->orWhere('nama_nasabah', 'like', "%{$search}%")
+                  ->orWhere('cif', 'like', "%{$search}%");
+            });
+        }
+        
+        $data = $query->orderBy('id')->paginate(20);
+        
+        return view('manager-pull-pipeline.non-debitur-vol-besar', compact('data'));
+    }
+
+    /**
+     * Qlola Nonaktif - Strategi 2
+     */
+    public function qlolaNonaktif(Request $request)
+    {
+        $user = Auth::user();
+        
+        if (!$user->isManager()) {
+            abort(403, 'Unauthorized action.');
+        }
+        
+        $query = QlolaNonaktif::where('kode_kanca', $user->kode_kanca);
+        
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('norek', 'like', "%{$search}%")
+                  ->orWhere('nama_nasabah', 'like', "%{$search}%")
+                  ->orWhere('cif', 'like', "%{$search}%");
+            });
+        }
+        
+        $data = $query->orderBy('id')->paginate(20);
+        
+        return view('manager-pull-pipeline.qlola-nonaktif', compact('data'));
+    }
+
+    /**
+     * User Aktif Casa Kecil - Strategi 2
+     */
+    public function userAktifCasaKecil(Request $request)
+    {
+        $user = Auth::user();
+        
+        if (!$user->isManager()) {
+            abort(403, 'Unauthorized action.');
+        }
+        
+        $query = UserAktifCasaKecil::where('kode_kanca', $user->kode_kanca);
+        
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('norek', 'like', "%{$search}%")
+                  ->orWhere('nama_nasabah', 'like', "%{$search}%")
+                  ->orWhere('cif', 'like', "%{$search}%");
+            });
+        }
+        
+        $data = $query->orderBy('id')->paginate(20);
+        
+        return view('manager-pull-pipeline.user-aktif-casa-kecil', compact('data'));
+    }
+
+    /**
+     * Optimalisasi Business Cluster - Strategi 3
+     */
+    public function optimalisasiBusinessCluster(Request $request)
+    {
+        $user = Auth::user();
+        
+        if (!$user->isManager()) {
+            abort(403, 'Unauthorized action.');
+        }
+        
+        $query = OptimalisasiBusinessCluster::where('kode_cabang_induk', $user->kode_kanca);
+        
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('nomor_rekening', 'like', "%{$search}%")
+                  ->orWhere('nama_usaha_pusat_bisnis', 'like', "%{$search}%")
+                  ->orWhere('nama_tenaga_pemasar', 'like', "%{$search}%");
+            });
+        }
+        
+        $data = $query->orderBy('nama_usaha_pusat_bisnis')->paginate(20);
+        
+        return view('manager-pull-pipeline.optimalisasi-business-cluster', compact('data'));
+    }
+
+    /**
+     * Existing Payroll - Strategi 4
+     */
+    public function existingPayroll(Request $request)
+    {
+        $user = Auth::user();
+        
+        if (!$user->isManager()) {
+            abort(403, 'Unauthorized action.');
+        }
+        
+        $query = ExistingPayroll::where('kode_cabang_induk', $user->kode_kanca);
+        
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('corporate_code', 'like', "%{$search}%")
+                  ->orWhere('nama_perusahaan', 'like', "%{$search}%");
+            });
+        }
+        
+        $data = $query->orderBy('nama_perusahaan')->paginate(20);
+        
+        return view('manager-pull-pipeline.existing-payroll', compact('data'));
+    }
+
+    /**
+     * Potensi Payroll - Strategi 4
+     */
+    public function potensiPayroll(Request $request)
+    {
+        $user = Auth::user();
+        
+        if (!$user->isManager()) {
+            abort(403, 'Unauthorized action.');
+        }
+        
+        $query = PotensiPayroll::where('kode_cabang_induk', $user->kode_kanca);
+        
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('perusahaan', 'like', "%{$search}%");
+            });
+        }
+        
+        $data = $query->orderBy('perusahaan')->paginate(20);
+        
+        return view('manager-pull-pipeline.potensi-payroll', compact('data'));
+    }
+
+    /**
+     * Perusahaan Anak - Strategi 6
+     */
+    public function perusahaanAnak(Request $request)
+    {
+        $user = Auth::user();
+        
+        if (!$user->isManager()) {
+            abort(403, 'Unauthorized action.');
+        }
+        
+        $query = PerusahaanAnak::where('kode_cabang_induk', $user->kode_kanca);
+        
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('nama_perusahaan_anak', 'like', "%{$search}%")
+                  ->orWhere('nama_partner_vendor', 'like', "%{$search}%");
+            });
+        }
+        
+        $data = $query->orderBy('nama_perusahaan_anak')->paginate(20);
+        
+        return view('manager-pull-pipeline.perusahaan-anak', compact('data'));
+    }
+
+    /**
+     * Penurunan Prioritas Ritel Mikro - Strategi 7
+     */
+    public function penurunanPrioritasRitelMikro(Request $request)
+    {
+        $user = Auth::user();
+        
+        if (!$user->isManager()) {
+            abort(403, 'Unauthorized action.');
+        }
+        
+        $query = PenurunanPrioritasRitelMikro::where('kode_cabang_induk', $user->kode_kanca);
+        
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('no_rekening', 'like', "%{$search}%")
+                  ->orWhere('nama_nasabah', 'like', "%{$search}%")
+                  ->orWhere('cifno', 'like', "%{$search}%");
+            });
+        }
+        
+        $data = $query->orderBy('nama_nasabah')->paginate(20);
+        
+        return view('manager-pull-pipeline.penurunan-prioritas-ritel-mikro', compact('data'));
+    }
+
+    /**
+     * AUM DPK - Strategi 7
+     */
+    public function aumDpk(Request $request)
+    {
+        $user = Auth::user();
+        
+        if (!$user->isManager()) {
+            abort(403, 'Unauthorized action.');
+        }
+        
+        $query = AumDpk::where('kode_cabang_induk', $user->kode_kanca);
+        
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('nomor_rekening', 'like', "%{$search}%")
+                  ->orWhere('nama_nasabah', 'like', "%{$search}%")
+                  ->orWhere('cif', 'like', "%{$search}%");
+            });
+        }
+        
+        $data = $query->orderBy('nama_nasabah')->paginate(20);
+        
+        return view('manager-pull-pipeline.aum-dpk', compact('data'));
+    }
+
+    /**
+     * Strategi 8
+     */
+    public function strategi8(Request $request)
+    {
+        $user = Auth::user();
+        
+        if (!$user->isManager()) {
+            abort(403, 'Unauthorized action.');
+        }
+        
+        $query = Strategi8::where('kode_cabang_induk', $user->kode_kanca);
+        
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('no_rekening', 'like', "%{$search}%")
+                  ->orWhere('nama_nasabah', 'like', "%{$search}%")
+                  ->orWhere('cifno', 'like', "%{$search}%");
+            });
+        }
+        
+        $data = $query->orderBy('nama_nasabah')->paginate(20);
+        
+        return view('manager-pull-pipeline.strategi8', compact('data'));
+    }
+
+    /**
+     * Layering
+     */
+    public function layering(Request $request)
+    {
+        $user = Auth::user();
+        
+        if (!$user->isManager()) {
+            abort(403, 'Unauthorized action.');
+        }
+        
+        $query = Layering::where('kode_cabang_induk', $user->kode_kanca);
+        
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('no_rekening', 'like', "%{$search}%")
+                  ->orWhere('nama_nasabah', 'like', "%{$search}%")
+                  ->orWhere('cifno', 'like', "%{$search}%");
+            });
+        }
+        
+        $data = $query->orderBy('nama_nasabah')->paginate(20);
+        
+        return view('manager-pull-pipeline.layering', compact('data'));
+    }
+}

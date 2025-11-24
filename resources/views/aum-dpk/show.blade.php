@@ -1,0 +1,173 @@
+@extends('layouts.app')
+
+@section('title', 'Detail AUM DPK')
+@section('page-title', 'Detail Data AUM>2M DPK<50 juta')
+
+@section('content')
+<style>
+    .detail-container {
+        background: white;
+        padding: 30px;
+        border-radius: 12px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        max-width: 1000px;
+        margin: 0 auto;
+    }
+
+    .detail-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+        margin-bottom: 30px;
+    }
+
+    .detail-item {
+        padding: 15px;
+        border-bottom: 1px solid #eee;
+    }
+
+    .detail-item.full-width {
+        grid-column: 1 / -1;
+    }
+
+    .detail-label {
+        font-weight: 600;
+        color: #666;
+        font-size: 13px;
+        text-transform: uppercase;
+        margin-bottom: 5px;
+    }
+
+    .detail-value {
+        font-size: 16px;
+        color: #333;
+    }
+
+    .btn {
+        padding: 12px 24px;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 14px;
+        text-decoration: none;
+        display: inline-block;
+        transition: all 0.3s;
+        margin-right: 10px;
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+    }
+
+    .btn-warning {
+        background-color: #ffc107;
+        color: #333;
+    }
+
+    .btn-secondary {
+        background-color: #6c757d;
+        color: white;
+    }
+
+    .btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+
+    .actions {
+        display: flex;
+        gap: 10px;
+    }
+
+    .section-title {
+        font-size: 18px;
+        font-weight: 600;
+        color: #667eea;
+        margin: 30px 0 20px 0;
+        padding-bottom: 10px;
+        border-bottom: 2px solid #667eea;
+    }
+</style>
+
+<div class="detail-container">
+    <div class="section-title">📊 Informasi Umum</div>
+    <div class="detail-grid">
+        <div class="detail-item">
+            <div class="detail-label">Kode Cabang Induk</div>
+            <div class="detail-value">{{ $aumDpk->kode_cabang_induk ?? '-' }}</div>
+        </div>
+
+        <div class="detail-item">
+            <div class="detail-label">Cabang Induk</div>
+            <div class="detail-value">{{ $aumDpk->cabang_induk ?? '-' }}</div>
+        </div>
+
+        <div class="detail-item">
+            <div class="detail-label">Kode Uker</div>
+            <div class="detail-value">{{ $aumDpk->kode_uker ?? '-' }}</div>
+        </div>
+
+        <div class="detail-item">
+            <div class="detail-label">Unit Kerja</div>
+            <div class="detail-value">{{ $aumDpk->unit_kerja ?? '-' }}</div>
+        </div>
+
+        <div class="detail-item">
+            <div class="detail-label">SLP</div>
+            <div class="detail-value">{{ $aumDpk->slp ?? '-' }}</div>
+        </div>
+
+        <div class="detail-item">
+            <div class="detail-label">PBO</div>
+            <div class="detail-value">{{ $aumDpk->pbo ?? '-' }}</div>
+        </div>
+    </div>
+
+    <div class="section-title">👤 Informasi Nasabah</div>
+    <div class="detail-grid">
+        <div class="detail-item">
+            <div class="detail-label">CIF</div>
+            <div class="detail-value">{{ $aumDpk->cif ?? '-' }}</div>
+        </div>
+
+        <div class="detail-item">
+            <div class="detail-label">ID Prioritas</div>
+            <div class="detail-value">{{ $aumDpk->id_prioritas ?? '-' }}</div>
+        </div>
+
+        <div class="detail-item full-width">
+            <div class="detail-label">Nama Nasabah</div>
+            <div class="detail-value">{{ $aumDpk->nama_nasabah ?? '-' }}</div>
+        </div>
+
+        <div class="detail-item">
+            <div class="detail-label">Nomor Rekening</div>
+            <div class="detail-value">{{ $aumDpk->nomor_rekening ?? '-' }}</div>
+        </div>
+
+        <div class="detail-item">
+            <div class="detail-label">AUM</div>
+            <div class="detail-value">{{ $aumDpk->aum ?? '-' }}</div>
+        </div>
+    </div>
+
+    <div class="section-title">⏰ Informasi Sistem</div>
+    <div class="detail-grid">
+        <div class="detail-item">
+            <div class="detail-label">Tanggal Dibuat</div>
+            <div class="detail-value">{{ $aumDpk->created_at ? $aumDpk->created_at->format('d/m/Y H:i:s') : '-' }}</div>
+        </div>
+
+        <div class="detail-item">
+            <div class="detail-label">Terakhir Diupdate</div>
+            <div class="detail-value">{{ $aumDpk->updated_at ? $aumDpk->updated_at->format('d/m/Y H:i:s') : '-' }}</div>
+        </div>
+    </div>
+
+    <div class="actions" style="margin-top: 30px;">
+        <a href="{{ route('aum-dpk.edit', $aumDpk->id) }}" class="btn btn-warning">✏️ Edit</a>
+        <a href="{{ route('aum-dpk.index') }}" class="btn btn-secondary">↩️ Kembali</a>
+    </div>
+</div>
+@endsection

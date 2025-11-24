@@ -1,0 +1,152 @@
+@extends('layouts.app')
+
+@section('title', 'Pull of Pipeline - Qlola Nonaktif')
+@section('page-title', 'Pull of Pipeline - Qlola (Belum ada Qlola / ada namun nonaktif)')
+
+@section('content')
+<style>
+    .read-only-badge {
+        display: inline-block;
+        padding: 6px 12px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 600;
+        margin-bottom: 16px;
+    }
+
+    .search-box {
+        margin-bottom: 20px;
+    }
+
+    .search-box input {
+        padding: 10px 15px;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        width: 300px;
+        font-size: 14px;
+    }
+
+    .btn-search {
+        padding: 10px 20px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 14px;
+        margin-left: 10px;
+    }
+
+    .btn-search:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    }
+
+    .table-container {
+        overflow-x: auto;
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    th, td {
+        padding: 12px;
+        text-align: left;
+        border-bottom: 1px solid #ddd;
+        white-space: nowrap;
+    }
+
+    th {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        font-weight: 600;
+        font-size: 14px;
+    }
+
+    tr:hover {
+        background-color: #f5f5f5;
+    }
+
+    .pagination-wrapper {
+        margin-top: 20px;
+        display: flex;
+        justify-content: center;
+    }
+
+    .no-data {
+        text-align: center;
+        padding: 40px;
+        color: #666;
+    }
+</style>
+
+<div class="card">
+    <span class="read-only-badge">📊 View Only - Read-Only Access</span>
+    
+    <div class="search-box">
+        <form action="{{ route('manager-pull-pipeline.qlola-nonaktif') }}" method="GET">
+            <input type="text" name="search" placeholder="Cari norek, nama debitur, atau CIF..." value="{{ request('search') }}">
+            <button type="submit" class="btn-search">🔍 Cari</button>
+            @if(request('search'))
+                <a href="{{ route('manager-pull-pipeline.qlola-nonaktif') }}" class="btn-search" style="background: #6c757d;">Reset</a>
+            @endif
+        </form>
+    </div>
+
+    <div class="table-container">
+        @if($data->count() > 0)
+            <table>
+                <thead>
+                    <tr>
+                        <th>No</th>
+                        <th>CIF</th>
+                        <th>Norek Pinjaman</th>
+                        <th>Norek Simpanan</th>
+                        <th>Nama Debitur</th>
+                        <th>Plafon</th>
+                        <th>PN Pengelola</th>
+                        <th>Kode KC</th>
+                        <th>Nama KC</th>
+                        <th>Unit Kerja</th>
+                        <th>Keterangan</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach($data as $index => $item)
+                        <tr>
+                            <td>{{ $data->firstItem() + $index }}</td>
+                            <td>{{ $item->cifno }}</td>
+                            <td>{{ $item->norek_pinjaman }}</td>
+                            <td>{{ $item->norek_simpanan }}</td>
+                            <td>{{ $item->nama_debitur }}</td>
+                            <td>{{ $item->plafon }}</td>
+                            <td>{{ $item->pn_pengelola }}</td>
+                            <td>{{ $item->kode_kanca }}</td>
+                            <td>{{ $item->kanca }}</td>
+                            <td>{{ $item->uker }}</td>
+                            <td>{{ $item->keterangan }}</td>
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        @else
+            <div class="no-data">
+                <p>Tidak ada data ditemukan untuk KC Anda.</p>
+            </div>
+        @endif
+    </div>
+
+    @if($data->hasPages())
+        <div class="pagination-wrapper">
+            {{ $data->appends(request()->query())->links() }}
+        </div>
+    @endif
+</div>
+@endsection
