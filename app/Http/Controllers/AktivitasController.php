@@ -473,7 +473,7 @@ class AktivitasController extends Controller
             'rencana_aktivitas_id' => 'nullable|exists:rencana_aktivitas,id',
             'segmen_nasabah' => 'required|string',
             'nama_nasabah' => 'required|string',
-            'norek' => 'required|string',
+            'norek' => 'nullable|string',
             'rp_jumlah' => 'required|string',
             'keterangan' => 'nullable|string',
         ]);

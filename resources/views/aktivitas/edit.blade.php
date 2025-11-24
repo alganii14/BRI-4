@@ -207,7 +207,7 @@
         <div id="form_nasabah_lama" style="display: {{ old('tipe_nasabah', $aktivitas->tipe ?? 'lama') == 'lama' ? 'block' : 'none' }};">
             <div class="form-row">
                 <div class="form-group">
-                    <label>CARI NASABAH <span style="color: red;">*</span></label>
+                    <label>CARI NASABAH</label>
                     <div style="position: relative;">
                         <input type="text" id="norek" name="norek" value="{{ old('norek', $aktivitas->norek) }}" placeholder="Klik tombol cari untuk memilih nasabah" autocomplete="off" style="padding-right: 45px;">
                         <button type="button" onclick="openNasabahModal()" style="position: absolute; right: 5px; top: 50%; transform: translateY(-50%); background: linear-gradient(135deg, #0066CC 0%, #003D82 100%); color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; font-size: 12px;">
@@ -220,12 +220,12 @@
 
                 <div class="form-group">
                     <label>NAMA NASABAH <span style="color: red;">*</span></label>
-                    <input type="text" id="nama_nasabah" name="nama_nasabah" value="{{ old('nama_nasabah', $aktivitas->nama_nasabah) }}" readonly>
+                    <input type="text" id="nama_nasabah" name="nama_nasabah" value="{{ old('nama_nasabah', $aktivitas->nama_nasabah) }}" placeholder="Masukkan nama nasabah" required>
                 </div>
 
                 <div class="form-group">
                     <label>RP / JUMLAH <span style="color: red;">*</span></label>
-                    <input type="text" id="rp_jumlah" name="rp_jumlah" value="{{ old('rp_jumlah', $aktivitas->rp_jumlah) }}" readonly>
+                    <input type="text" id="rp_jumlah" name="rp_jumlah" value="{{ old('rp_jumlah', $aktivitas->rp_jumlah) }}" placeholder="Masukkan jumlah" required>
                 </div>
             </div>
         </div>
@@ -256,13 +256,32 @@
         </div>
 
         <div class="form-actions">
-            <button type="submit" class="btn btn-primary">Update Aktivitas</button>
+            <button type="submit" class="btn btn-primary" onclick="console.log('Submit button clicked')">Update Aktivitas</button>
             <a href="{{ route('aktivitas.index') }}" class="btn btn-secondary">Batal</a>
         </div>
     </form>
 </div>
 
 <script>
+    // Debug form submission dan sync field values
+    document.querySelector('form').addEventListener('submit', function(e) {
+        console.log('Form is being submitted');
+        
+        const tipeNasabah = document.getElementById('tipe_nasabah').value;
+        
+        // Sync values based on tipe nasabah
+        if (tipeNasabah === 'baru') {
+            // Copy dari form baru ke form lama (yang akan di-submit)
+            document.getElementById('norek').value = document.getElementById('norek_baru').value;
+            document.getElementById('nama_nasabah').value = document.getElementById('nama_nasabah_baru').value;
+            document.getElementById('rp_jumlah').value = document.getElementById('rp_jumlah_baru').value;
+        }
+        
+        console.log('norek:', document.getElementById('norek').value);
+        console.log('nama_nasabah:', document.getElementById('nama_nasabah').value);
+        console.log('rp_jumlah:', document.getElementById('rp_jumlah').value);
+    });
+
     // Event listener untuk update hidden field rencana_aktivitas
     document.querySelector('select[name="rencana_aktivitas_id"]').addEventListener('change', function() {
         const selectedOption = this.options[this.selectedIndex];
@@ -274,10 +293,13 @@
     const kategoriMap = {
         'Strategi 1': [
             'MERCHANT SAVOL BESAR CASA KECIL (QRIS & EDC)',
-            'Qlola (Belum ada Qlola / ada namun nonaktif)',
+            'PENURUNAN CASA MERCHANT (QRIS & EDC)',
+            'PENURUNAN CASA BRILINK',
             'Qlola Non Debitur',
-            'Non Debitur Vol Besar CASA Kecil',
-            'AUM>2M DPK<50 juta',
+            'Non Dbitur Vol Besar CASA Kecil'
+        ],
+        'Strategi 2': [
+            'Qlola (Belum ada Qlola / ada namun nonaktif)',
             'User Aktif Casa Kecil'
         ],
         'Strategi 3': ['Optimalisasi Business Cluster'],
@@ -318,21 +340,32 @@
     });
 
     // Set kategori saat halaman load
-    if (strategySelect.value) {
-        const strategy = strategySelect.value;
-        if (kategoriMap[strategy]) {
-            kategoriGroup.style.display = 'block';
-            kategoriMap[strategy].forEach(function(kategori) {
-                const option = document.createElement('option');
-                option.value = kategori;
-                option.textContent = kategori;
-                if (kategori === currentKategori) {
-                    option.selected = true;
-                }
-                kategoriSelect.appendChild(option);
-            });
+    function loadKategoriOptions() {
+        if (strategySelect.value) {
+            const strategy = strategySelect.value;
+            
+            // Reset kategori dropdown
+            kategoriSelect.innerHTML = '<option value="">Pilih Kategori</option>';
+            
+            if (kategoriMap[strategy]) {
+                kategoriGroup.style.display = 'block';
+                kategoriMap[strategy].forEach(function(kategori) {
+                    const option = document.createElement('option');
+                    option.value = kategori;
+                    option.textContent = kategori;
+                    if (kategori === currentKategori) {
+                        option.selected = true;
+                    }
+                    kategoriSelect.appendChild(option);
+                });
+            } else {
+                kategoriGroup.style.display = 'none';
+            }
         }
     }
+    
+    // Load kategori saat halaman pertama kali dibuka
+    loadKategoriOptions();
 
     // Toggle between Nasabah Lama and Nasabah Baru forms
     function toggleNasabahForm() {
